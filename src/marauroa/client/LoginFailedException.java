@@ -28,7 +28,7 @@ public class LoginFailedException extends Exception {
 	 * @param reason a human readable error message
 	 */
 	public LoginFailedException(String reason) {
-		super(translate("Login failed: %1$s", reason));
+		super(translate("Błąd logowania: %1$s", reason));
 	}
 
 	/**

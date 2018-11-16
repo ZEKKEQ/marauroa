@@ -313,17 +313,17 @@ public class AccountDAO {
 				String expire = result.getString("expire");
 				if (reason != null) {
 					if (expire != null) {
-						res = translate("Your account is temporarily suspended until %1$s server time.", expire) + "\r\n";
+						res = translate("Twoje konto zostało zawieszone na %1$s wg czasu serwera.", expire) + "\r\n";
 					} else {
-						res = translate("Your account is banned.") + "\r\n";
+						res = translate("Twoje konto zostało zablokowane.") + "\r\n";
 					}
-					res = res + translate("The reason given was: %1$s", reason) + "\r\n";
+					res = res + translate("Powodem było: %1$s", reason) + "\r\n";
 				} else if ("banned".equals(status)) {
-					res = translate("Your account has been banned. Please contact support.") + "\r\n";
+					res = translate("Twoje konto zostało zablokowane. Skontaktuj się ze wsparciem.") + "\r\n";
 				} else if ("inactive".equals(status)) {
-					res = translate("Your account has been flagged as inactive. Please contact support.") + "\r\n";
+					res = translate("Twoje konto jest jeszcze nieaktywne.\nPotwierdź rejestrację konta przez kliknięcie na odnośnik znajdujący się w mailu, który został wysłany na adres podany podczas rejestracji. W razie problemów skontaktuj się ze wsparciem.") + "\r\n";
 				} else if ("merged".equals(status)) {
-					res = translate("Your account has been merged into another account.\nPlease login with that account or contact support.") + "\r\n";
+					res = translate("Twoje konto zostało połączone z innym.\nZaloguj się na to konto lub skontaktuj się ze wsparciem.") + "\r\n";
 				}
 
 				if (((reason != null) || (!"active".equals(status))) && (!"merged".equals(status))) {

@@ -58,22 +58,25 @@ public class MessageS2CLoginNACK extends Message {
 	}
 
 	static private String[] text = {
-	        "Username/Password incorrect.",
-	        "There have been too many failed login attempts for your account or network. "
-	        	+ "Please wait a couple of minutes or contact support.",
-		    "Account is banned.",
-	        "Server is full.",
-	        "Server is running an incompatible version of game. Please update.",
-	        "Invalid network protocol version.",
-	        "The hash you sent does not correspond to the nonce you sent.",
-	        "You account has been marked as inactive, please contact support.",
-	        "There have been too many failed login attempts for your account. "
-        	+ "Please wait a couple of minutes or contact support.",
-	        "There have been too many failed login attempts from your network. "
-        	+ "Please wait a couple of minutes or contact support.",
-        	"Login expired. Please click again on your character on the web page.",
-        	"This account was merged into another account. Please use the username "
-        	+"of the other account to login or contact support."};
+	        "Niepoprawna nazwa użytkownika/hasła. ",
+	        "Wystąpiło zbyt wiele niepoprawnych prób zalogowania do twojego konta lub z twojej sieci. "
+	        	+ "Odczekaj kilka minut lub skontaktuj się ze wsparciem.",
+		    "Konto jest zablokowane.",
+	        "Serwer jest pełny.",
+	        "Serwer działa na niekompatybilnej wersji gry. Zaktualizuj.",
+	        "Nieprawidłowa wersja protokołu.",
+	        "Hash, który wysyłasz jest nie zgodny z tym co wysłałeś wcześniej.",
+	        "Twoje konto jest nieaktywne. Musisz potwierdzić utworzenie konta klikając na odnośnik "
+	        	+ "przesłany w e-mailu. Jeśli go nie otrzymałeś to zaloguj się na stronie i naciśnij na przycisk "
+	        	+ "ponownego wysłania lub skontaktuj się ze wsparciem. Masz 24 godziny na potwierdzenie utworzenia " 
+	        	+ "konta ponieważ po tym czasie konto zostanie automatycznie usunięte.",
+	        "Wystąpiło zbyt wiele nieudanych prób zalogowania do twojego konta. "
+	        	+ "Odczekaj kilka minut lub skontaktuj się ze wsparciem.",
+	        "Wystąpiło zbyt wiele nieudanych prób zalogowania z twojej sieci. "
+	        	+ "Odczekaj kilka minut lub skontaktuj się ze wsparciem.",
+        	"Nie powiodło się wstępne uwierzytelnienie. Spróbuj ponownie.",
+        	"To konto zostało połączone z innym kontem. Użyj loginu innego konta, "
+        		+"aby zalogować lub skontaktuj się ze wsparciem."};
 
 	/** The reason of login rejection */
 	private Reasons reason;

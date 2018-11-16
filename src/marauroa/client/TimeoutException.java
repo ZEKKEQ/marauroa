@@ -25,6 +25,6 @@ public class TimeoutException extends Exception {
 	 * creates a new TimeoutException
 	 */
 	public TimeoutException() {
-		super(translate("Timeout happened while waiting server reply."));
+		super(translate("Upłynął czas oczekiwania na odpowiedź serwera"));
 	}
 }

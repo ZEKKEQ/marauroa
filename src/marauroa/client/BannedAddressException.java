@@ -24,6 +24,6 @@ public class BannedAddressException extends Exception {
 	 * created a new BannedAddressException.
 	 */
 	public BannedAddressException() {
-		super(translate("Your IP Address has been banned."));
+		super(translate("Twój adres IP został zablokowany."));
 	}
 }
