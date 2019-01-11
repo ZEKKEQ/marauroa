@@ -1,5 +1,5 @@
 /***************************************************************************
- *                   (C) Copyright 2003-2018 - Marauroa                    *
+ *                   (C) Copyright 2003-2011 - Marauroa                    *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
@@ -14,12 +14,9 @@ package marauroa.server.game.dbcommand;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
-
 import marauroa.common.game.RPObject;
 import marauroa.server.db.DBTransaction;
 import marauroa.server.db.command.AbstractDBCommand;
-import marauroa.server.db.command.DBCommandQueue;
 import marauroa.server.game.db.CharacterDAO;
 import marauroa.server.game.db.DAORegister;
 
@@ -29,7 +26,6 @@ import marauroa.server.game.db.DAORegister;
  * @author hendrik
  */
 public class StoreCharacterCommand extends AbstractDBCommand {
-	private Logger logger = Logger.getLogger(StoreCharacterCommand.class);
 
 	private final String username;
 	private final String character;
@@ -50,35 +46,7 @@ public class StoreCharacterCommand extends AbstractDBCommand {
 
 	@Override
 	public void execute(DBTransaction transaction) throws SQLException, IOException {
-		try {
-			DAORegister.get().get(CharacterDAO.class).storeCharacter(transaction, username, character, frozenObject);
-		} catch (SQLException e) {
-			if (!(e.toString().contains("CommunicationsException") || e.toString().contains("Query execution was interrupted"))) {
-				handleStorageFailure();
-			}
-			throw e;
-		} catch (IOException e) {
-			handleStorageFailure();
-			throw e;
-		} catch (RuntimeException e) {
-			handleStorageFailure();
-			throw e;
-		}
-	}
-
-	/**
-	 * handles a storage failure by disabling the character
-	 *
-	 * @throws IOException in case of an input/output error
-	 * @throws SQLException in case of an database error
-	 */
-	private void handleStorageFailure() throws SQLException, IOException {
-		logger.error("Disabling character " + character + " because of storage error.");
-
-		// use a dedicated transaction because our original transaction is flagged 
-		// as broken and will be rolled back as we are handling a DB error. It still may
-		// own locks at this time, so we cannot open a new connection right away.
-		DBCommandQueue.get().enqueue(new SetCharacterStatusCommand(username, character, "inactive"));
+		DAORegister.get().get(CharacterDAO.class).storeCharacter(transaction, username, character, frozenObject);
 	}
 
 	/**
@@ -88,6 +56,7 @@ public class StoreCharacterCommand extends AbstractDBCommand {
 	 */
 	@Override
 	public String toString() {
-		return "StoreCharacterCommand [username=" + username + ", character=" + character + "]";
+		return "StoreCharacterCommand [username=" + username + ", character="
+				+ character + ", frozenObject=" + frozenObject + "]";
 	}
 }
