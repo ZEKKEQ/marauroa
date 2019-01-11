@@ -53,7 +53,7 @@ public class StoreCharacterCommand extends AbstractDBCommand {
 		try {
 			DAORegister.get().get(CharacterDAO.class).storeCharacter(transaction, username, character, frozenObject);
 		} catch (SQLException e) {
-			if (!transaction.isConnectionError(e)) {
+			if (!(e.toString().contains("CommunicationsException") || e.toString().contains("Query execution was interrupted"))) {
 				handleStorageFailure();
 			}
 			throw e;
