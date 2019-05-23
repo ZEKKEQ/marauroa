@@ -146,7 +146,7 @@ public class LoginEventDAO {
 		 */
 		@Override
 		public String toString() {
-			return "Login " + (correct ? "successful" : "FAILED") + " at " + date + " server time from " + address;
+			return "logowanie zakończyło się " + (correct ? "sukcesem" : "NIEPOWODZENIEM") + " dnia " + date + " czasu serwera z " + address;
 		}
 
 		/**
