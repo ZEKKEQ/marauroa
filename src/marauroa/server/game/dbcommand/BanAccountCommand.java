@@ -1,5 +1,5 @@
 /***************************************************************************
- *                      (C) Copyright 2018 - Marauroa                      *
+ *                   (C) Copyright 2010-2020 - Marauroa                    *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
@@ -13,39 +13,38 @@ package marauroa.server.game.dbcommand;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import marauroa.server.db.DBTransaction;
 import marauroa.server.db.command.AbstractDBCommand;
-import marauroa.server.game.db.CharacterDAO;
+import marauroa.server.game.db.AccountDAO;
 import marauroa.server.game.db.DAORegister;
 
 /**
- * Asynchronously set a character's status.
+ * bans an account
  *
  * @author hendrik
  */
-public class SetCharacterStatusCommand extends AbstractDBCommand {
-	private final String username;
-	private final String character;
-	private final String status;
-
+public class BanAccountCommand  extends AbstractDBCommand {
+	private String username;
+	private String reason;
+	private Timestamp expire;
 
 	/**
-	 * Asynchronously stores a character's progress
+	 * creates a BanAccountCommand
 	 *
-	 * @param username  username
-	 * @param character character name
-	 * @param status    status
+	 * @param username username to ban
+	 * @param reason reason for the an
+	 * @param expire expire timestamp
 	 */
-	public SetCharacterStatusCommand(String username, String character, String status) {
+	public BanAccountCommand(String username, String reason, Timestamp expire) {
 		this.username = username;
-		this.character = character;
-		this.status = status;
+		this.reason = reason;
+		this.expire = expire;
 	}
 
 	@Override
 	public void execute(DBTransaction transaction) throws SQLException, IOException {
-		DAORegister.get().get(CharacterDAO.class).setCharacterStatus(transaction, username, character, status);
+		DAORegister.get().get(AccountDAO.class).addBan(transaction, username, reason, expire);
 	}
-
 }

@@ -1,5 +1,5 @@
 /***************************************************************************
- *                   (C) Copyright 2003-2010 - Marauroa                    *
+ *                   (C) Copyright 2003-2020 - Marauroa                    *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
@@ -37,8 +37,7 @@ public class LoginSeedDAO {
 
 
 	/**
-	 * checks if the ip-address is temporary blocked because of too many failed login attempts.
-	 * Blocking ip-addresses is not related to banning ip-addresses.
+	 * verifies a login seed
 	 *
 	 * @param transaction DBTransaction
 	 * @param username username
@@ -98,6 +97,7 @@ public class LoginSeedDAO {
 	 *    <code>null</code>, if the seed does not exist at all
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public Boolean verifySeed(String username, String seed) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -114,6 +114,7 @@ public class LoginSeedDAO {
 	 * @param seed seed
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public void useSeed(String seed) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {

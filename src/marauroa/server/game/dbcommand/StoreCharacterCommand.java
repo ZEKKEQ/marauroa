@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import marauroa.common.game.RPObject;
 import marauroa.server.db.DBTransaction;
 import marauroa.server.db.command.AbstractDBCommand;
+import marauroa.server.db.command.DBCommandPriority;
 import marauroa.server.db.command.DBCommandQueue;
 import marauroa.server.game.db.CharacterDAO;
 import marauroa.server.game.db.DAORegister;
@@ -51,9 +52,9 @@ public class StoreCharacterCommand extends AbstractDBCommand {
 	@Override
 	public void execute(DBTransaction transaction) throws SQLException, IOException {
 		try {
-			DAORegister.get().get(CharacterDAO.class).storeCharacter(transaction, username, character, frozenObject);
+			DAORegister.get().get(CharacterDAO.class).storeCharacter(transaction, username, character, frozenObject, getEnqueueTime());
 		} catch (SQLException e) {
-			if (!(e.toString().contains("CommunicationsException") || e.toString().contains("Query execution was interrupted"))) {
+			if (!transaction.isConnectionError(e)) {
 				handleStorageFailure();
 			}
 			throw e;
@@ -78,7 +79,7 @@ public class StoreCharacterCommand extends AbstractDBCommand {
 		// use a dedicated transaction because our original transaction is flagged 
 		// as broken and will be rolled back as we are handling a DB error. It still may
 		// own locks at this time, so we cannot open a new connection right away.
-		DBCommandQueue.get().enqueue(new SetCharacterStatusCommand(username, character, "inactive"));
+		DBCommandQueue.get().enqueue(new SetCharacterStatusCommand(username, character, "inactive"), DBCommandPriority.CRITICAL);
 	}
 
 	/**
@@ -90,4 +91,5 @@ public class StoreCharacterCommand extends AbstractDBCommand {
 	public String toString() {
 		return "StoreCharacterCommand [username=" + username + ", character=" + character + "]";
 	}
+
 }

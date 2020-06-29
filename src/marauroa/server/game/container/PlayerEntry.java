@@ -1,5 +1,5 @@
 /***************************************************************************
- *                   (C) Copyright 2007-2012 - Marauroa                    *
+ *                   (C) Copyright 2007-2020 - Marauroa                    *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
@@ -29,11 +29,8 @@ import marauroa.common.net.NetConst;
 import marauroa.common.net.message.Message;
 import marauroa.common.net.message.TransferContent;
 import marauroa.server.db.command.DBCommand;
+import marauroa.server.db.command.DBCommandPriority;
 import marauroa.server.db.command.DBCommandQueue;
-import marauroa.server.game.db.AccountDAO;
-import marauroa.server.game.db.CharacterDAO;
-import marauroa.server.game.db.DAORegister;
-import marauroa.server.game.db.LoginEventDAO;
 import marauroa.server.game.dbcommand.StoreCharacterCommand;
 
 /**
@@ -277,29 +274,7 @@ public class PlayerEntry {
 
 		// We store the object in the database
 		DBCommand command = new StoreCharacterCommand(username, character, player);
-		DBCommandQueue.get().enqueue(command);
-	}
-
-	/**
-	 * This method query database to check if the player with username given by
-	 * the entry has a character with the name passed as argument.
-	 *
-	 * @param charname
-	 *            The name we are querying for.
-	 * @return true if it is found or false otherwise.
-	 * @throws SQLException
-	 *             If there is a Database exception.
-	 */
-	public boolean hasCharacter(String charname) throws SQLException {
-		return DAORegister.get().get(CharacterDAO.class).hasCharacter(username, charname);
-	}
-
-	/**
-	 * Allows to ban this player account
-	 * @throws SQLException
-	 */
-	public void ban() throws SQLException {
-		DAORegister.get().get(AccountDAO.class).setAccountStatus(username, "banned");
+		DBCommandQueue.get().enqueue(command, DBCommandPriority.CRITICAL);
 	}
 
 	/**
@@ -311,33 +286,12 @@ public class PlayerEntry {
 		this.object = object;
 	}
 
-	/**
-	 * This method returns a list of all the characters available for this
-	 * player
-	 *
-	 * @return a list containing all the usable characters
-	 * @throws SQLException
-	 *             if there is any database problem.
-	 */
-	public List<String> getCharacters() throws SQLException {
-		return DAORegister.get().get(CharacterDAO.class).getCharacters(username);
-	}
 
 	/**
 	 * This method forces an update on the next perception sending.
 	 */
 	public void requestSync() {
 		requestedSync = true;
-	}
-
-	/**
-	 * Return a list of the previous login attempts.
-	 *
-	 * @return a list of the previous login attempts.
-	 * @throws SQLException
-	 */
-	public List<String> getPreviousLogins() throws SQLException {
-		return DAORegister.get().get(LoginEventDAO.class).getLoginEvents(username, 1);
 	}
 
 	/**

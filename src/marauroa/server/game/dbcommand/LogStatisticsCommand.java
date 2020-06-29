@@ -39,7 +39,7 @@ public class LogStatisticsCommand extends AbstractDBCommand {
 
 	@Override
 	public void execute(DBTransaction transaction) throws SQLException {
-		DAORegister.get().get(StatisticsDAO.class).addStatisticsEvent(transaction, frozenNow);
+		DAORegister.get().get(StatisticsDAO.class).addStatisticsEvent(transaction, frozenNow, getEnqueueTime());
 	}
 
 	/**

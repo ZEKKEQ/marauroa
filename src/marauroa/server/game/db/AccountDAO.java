@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +50,20 @@ public class AccountDAO {
 		// hide constructor as this class should only be instantiated by DAORegister
 	}
 
+	/**
+	 * creates an account
+	 *
+	 * @param transaction DBTransaction
+	 * @param username username
+	 * @param passwordHash password hash
+	 * @param email email-address
+	 * @throws SQLException in case of an database error
+	 */
+	@Deprecated
+	public void addPlayer(DBTransaction transaction, String username, byte[] passwordHash, String email) throws SQLException {
+		addPlayer(transaction, username,passwordHash, email, new Timestamp(new Date().getTime()));
+	}
+
 
 	/**
 	 * creates an account
@@ -59,15 +74,15 @@ public class AccountDAO {
 	 * @param email email-address
 	 * @throws SQLException in case of an database error
 	 */
-	public void addPlayer(DBTransaction transaction, String username, byte[] passwordHash, String email) throws SQLException {
+	public void addPlayer(DBTransaction transaction, String username, byte[] passwordHash, String email, Timestamp timestamp) throws SQLException {
 		try {
 			if (!StringChecker.validString(username) || !StringChecker.validString(email)) {
 				throw new SQLException("Invalid string username=(" + username + ") email=(" + email
 				        + ")");
 			}
 
-			String query = "insert into account(username, password, status)"
-				+ " values('[username]','[password]', '[status]')";
+			String query = "insert into account(username, password, status, timedate)"
+				+ " values('[username]','[password]', '[status]', '[timedate]')";
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("username", username);
 			try {
@@ -81,6 +96,7 @@ public class AccountDAO {
 			} catch (IOException e) {
 				throw new SQLException(e);
 			}
+			params.put("timedate", timestamp);
 			logger.debug("addPlayer is using query: " + query);
 			transaction.execute(query, params);
 
@@ -424,7 +440,7 @@ public class AccountDAO {
 				return false;
 			}
 			// the provided seed is valid, use it up
-			loginSeedDAO.useSeed(informations.seed);
+			loginSeedDAO.useSeed(transaction, informations.seed);
 			if (seedVerified.booleanValue()) {
 				// the seed was even pre authenticated, so we are done here
 				return true;
@@ -588,7 +604,7 @@ public class AccountDAO {
 	public void addBan(DBTransaction transaction, String username, String reason, Timestamp expire)
 			throws SQLException {
 		try {
-			int player_id = getDatabasePlayerId(username);
+			int player_id = getDatabasePlayerId(transaction, username);
 
 			String expireStr = "'[expire]'";
 			if (expire == null) {
@@ -624,10 +640,11 @@ public class AccountDAO {
 	 * @param email email-address
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public void addPlayer(String username, byte[] password, String email) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
-			addPlayer(transaction, username, password, email);
+			addPlayer(transaction, username, password, email, new Timestamp(new Date().getTime()));
 		} finally {
 			TransactionPool.get().commit(transaction);
 		}
@@ -640,6 +657,7 @@ public class AccountDAO {
 	 * @param email new email-address
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public void changeEmail(String username, String email) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -656,6 +674,7 @@ public class AccountDAO {
 	 * @param password new password
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public void changePassword(String username, String password) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -672,6 +691,7 @@ public class AccountDAO {
 	 * @return true, if the account exists; false otherwise
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public boolean hasPlayer(String username) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -689,6 +709,7 @@ public class AccountDAO {
 	 * @param status account status
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public void setAccountStatus(String username, String status) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -705,6 +726,7 @@ public class AccountDAO {
 	 * @return account status, or <code>null</code> if no such account exists
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public String getAccountStatus(String username) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -722,6 +744,7 @@ public class AccountDAO {
 	 * @return account ban message, or <code>null</code> if this account is not banned
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public String getAccountBanMessage(String username) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -739,6 +762,7 @@ public class AccountDAO {
 	 * @return email of account, or <code>null</code> if no such account exists
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public String getEmail(String username) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -756,6 +780,7 @@ public class AccountDAO {
 	 * @return id of account, or -1 if no such account exists
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public int getDatabasePlayerId(String username) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -773,6 +798,7 @@ public class AccountDAO {
 	 * @return true, on success; false otherwise
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public boolean verify(SecuredLoginInfo informations) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -791,6 +817,7 @@ public class AccountDAO {
 	 * @return true on success, false if the account does not exists or the password does not match
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public boolean verifyPassword(String username, String password) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -808,6 +835,7 @@ public class AccountDAO {
 	 * @return always true
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public boolean removePlayer(String username) throws SQLException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -827,6 +855,7 @@ public class AccountDAO {
 	 * @throws SQLException in case of an database error
 	 * @throws IOException in case of an input/output error
 	 */
+	@Deprecated
 	public boolean isAccountCreationLimitReached(String address) throws SQLException, IOException {
 		DBTransaction transaction = TransactionPool.get().beginWork();
 		try {
@@ -845,6 +874,7 @@ public class AccountDAO {
 	 * @param expire timestamp when this ban will expire, may be <code>null</code>
 	 * @throws SQLException in case of an database error
 	 */
+	@Deprecated
 	public void addBan(String username, String reason, Timestamp expire)
 			throws SQLException {
 
