@@ -57,6 +57,12 @@ public class SecuredLoginInfo {
 	/** is the password encrypted */
 	public boolean usingSecureChannel = true;
 
+	/** token type */
+	public String tokenType;
+
+	/**  */
+	public String token;
+
 	/**
 	 * Constructor
 	 *
@@ -82,18 +88,6 @@ public class SecuredLoginInfo {
 	 */
 	public SecuredLoginInfo(InetAddress address) {
 		this.address = address;
-	}
-
-	/**
-	 * Verify that a player is whom he/she says it is.
-	 *
-	 * @param transaction DBTransactions
-	 * @return true if it is correct: username and password matches.
-	 * @throws SQLException
-	 *             if there is any database problem.
-	 */
-	public boolean verify(DBTransaction transaction) throws SQLException {
-		return DAORegister.get().get(AccountDAO.class).verify(transaction, this);
 	}
 
 	/**
@@ -160,11 +154,15 @@ public class SecuredLoginInfo {
 	 *             if there is any database problem.
 	 */
 	public boolean isBlocked(DBTransaction transaction) throws SQLException {
-		boolean res = true;
 		LoginEventDAO loginEventDAO = DAORegister.get().get(LoginEventDAO.class);
-		res = loginEventDAO.isAccountBlocked(transaction, username)
-			|| loginEventDAO.isAddressBlocked(transaction, address.getHostAddress());
-		return res;
+		boolean res = loginEventDAO.isAddressBlocked(transaction, address.getHostAddress());
+		if (res) {
+			return res;
+		}
+		if (username == null) {
+			return false;
+		}
+		return loginEventDAO.isAccountBlocked(transaction, username);
 	}
 
 	/**
@@ -202,6 +200,10 @@ public class SecuredLoginInfo {
 	 * @return the decrypted password hash
 	 */
 	public byte[] getDecryptedPasswordHash() {
+		if (password == null) {
+			return null;
+		}
+
 		byte[] b1 = key.decodeByteArray(password);
 		byte[] b2 = Hash.xor(clientNonce, serverNonce);
 		if (b2 == null) {

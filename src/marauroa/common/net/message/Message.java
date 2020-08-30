@@ -105,7 +105,11 @@ public class Message implements Serializable {
 		/** send a software update */
 		S2C_UPDATE,
 		/** update response */
-		C2S_UPDATE_RESPONSE
+		C2S_UPDATE_RESPONSE,
+		/** Login with token */
+		C2S_LOGIN_WITH_TOKEN,
+		/** client to server: requests an account creation without password required (e.g. 3rd party auth provider) */
+		C2S_CREATE_ACCOUNT_WITH_TOKEN,
 	}
 
 	/** Type of the message */

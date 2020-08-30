@@ -1,5 +1,5 @@
 /***************************************************************************
- *                   (C) Copyright 2003-2012 - Marauroa                    *
+ *                   (C) Copyright 2003-2020 - Marauroa                    *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
@@ -13,6 +13,7 @@ package marauroa.server.game.messagehandler;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -21,15 +22,18 @@ import marauroa.common.Configuration;
 import marauroa.common.Log4J;
 import marauroa.common.TimeoutConf;
 import marauroa.common.crypto.Hash;
+import marauroa.common.crypto.SymmetricKey;
 import marauroa.common.net.Channel;
 import marauroa.common.net.message.Message;
 import marauroa.common.net.message.MessageC2SLoginSendNonceNameAndPassword;
 import marauroa.common.net.message.MessageC2SLoginSendNonceNamePasswordAndSeed;
 import marauroa.common.net.message.MessageC2SLoginSendUsernameAndPassword;
+import marauroa.common.net.message.MessageC2SLoginWithToken;
 import marauroa.common.net.message.MessageS2CLoginACK;
 import marauroa.common.net.message.MessageS2CLoginMessageNACK;
 import marauroa.common.net.message.MessageS2CLoginNACK;
 import marauroa.common.net.message.MessageS2CServerInfo;
+import marauroa.server.auth.AuthenticationManager;
 import marauroa.server.db.command.DBCommand;
 import marauroa.server.db.command.DBCommandPriority;
 import marauroa.server.db.command.DBCommandQueue;
@@ -52,6 +56,19 @@ class SecuredLoginHandler extends MessageHandler implements DelayedEventHandler 
 	/** the logger instance. */
 	private static final marauroa.common.Logger logger = Log4J.getLogger(SecuredLoginHandler.class);
 
+	private AuthenticationManager authMan;
+
+	public SecuredLoginHandler() {
+		try {
+			Configuration conf = Configuration.getConfiguration();
+			Class<?> authManClass = Class.forName(conf.get("authentication", "marauroa.server.auth.DatabaseAuthenticationManager"));
+			authMan = (AuthenticationManager) authManClass.newInstance();
+		} catch (IOException e) {
+			logger.error(e, e);
+		} catch (ReflectiveOperationException e) {
+			logger.error(e, e);
+		}
+	}
 
 	/**
 	 * This last method completes the login process.
@@ -70,10 +87,14 @@ class SecuredLoginHandler extends MessageHandler implements DelayedEventHandler 
 			}
 
 			SecuredLoginInfo info = fillLoginInfo(msg, entry);
-			DBCommand command = new LoginCommand(info,
-					this, entry.clientid,
+
+			if (info.isUsingSecureChannel() && Hash.compare(Hash.hash(info.clientNonce), info.clientNonceHash) != 0) {
+				logger.warn("Different hashs for client Nonce");
+				return;
+			}
+
+			authMan.verify(info, this, entry.clientid,
 					msg.getChannel(), msg.getProtocolVersion());
-			DBCommandQueue.get().enqueue(command, DBCommandPriority.CRITICAL);
 	}
 
 	private void completeLogin(Channel channel, int clientid, int protocolVersion, SecuredLoginInfo info, List<String> previousLogins) {
@@ -127,6 +148,12 @@ class SecuredLoginHandler extends MessageHandler implements DelayedEventHandler 
 			info.username = msgLogin.getUsername();
 			info.password = msgLogin.getPassword();
 			info.seed = decode(info, msgLogin.getSeed());
+		} else if (msg instanceof MessageC2SLoginWithToken) {
+			MessageC2SLoginWithToken msgLogin = (MessageC2SLoginWithToken) msg;
+			info.clientNonce = msgLogin.getNonce();
+			info.username = msgLogin.getUsername();
+			info.tokenType = msgLogin.getTokenType();
+			info.token = decodeToken(info, msgLogin);
 		} else {
 			MessageC2SLoginSendUsernameAndPassword msgLogin = (MessageC2SLoginSendUsernameAndPassword) msg;
 			info = new SecuredLoginInfo(entry.getAddress());
@@ -155,7 +182,26 @@ class SecuredLoginHandler extends MessageHandler implements DelayedEventHandler 
 		}
 	}
 
+	private String decodeToken(SecuredLoginInfo info, MessageC2SLoginWithToken msgLogin) {
+		try {
+			byte[] encryptedSessionKey = msgLogin.getEncryptedSessionKey();
+			byte[] b1 = info.key.decodeByteArray(encryptedSessionKey);
+			byte[] b2 = Hash.xor(info.clientNonce, info.serverNonce);
 
+			byte[] sessionKey = Hash.xor(b1, b2);
+			SymmetricKey symmetricKey = new SymmetricKey(sessionKey);
+
+			byte[] initVector = msgLogin.getInitVector();
+			byte[] token = symmetricKey.decrypt(initVector, msgLogin.getEncryptedToken());
+
+			return new String(token, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e, e);
+		} catch (GeneralSecurityException e) {
+			logger.error(e, e);
+		}
+		return null;
+	}
 
 	/**
 	 * This class stores Server information like

@@ -23,6 +23,7 @@ import marauroa.common.net.message.Message;
 import marauroa.common.net.message.MessageC2SAction;
 import marauroa.common.net.message.MessageC2SChooseCharacter;
 import marauroa.common.net.message.MessageC2SCreateAccount;
+import marauroa.common.net.message.MessageC2SCreateAccountWithToken;
 import marauroa.common.net.message.MessageC2SCreateCharacter;
 import marauroa.common.net.message.MessageC2SKeepAlive;
 import marauroa.common.net.message.MessageC2SLoginRequestKey;
@@ -30,6 +31,7 @@ import marauroa.common.net.message.MessageC2SLoginSendNonceNameAndPassword;
 import marauroa.common.net.message.MessageC2SLoginSendNonceNamePasswordAndSeed;
 import marauroa.common.net.message.MessageC2SLoginSendPromise;
 import marauroa.common.net.message.MessageC2SLoginSendUsernameAndPassword;
+import marauroa.common.net.message.MessageC2SLoginWithToken;
 import marauroa.common.net.message.MessageC2SLogout;
 import marauroa.common.net.message.MessageC2SOutOfSync;
 import marauroa.common.net.message.MessageC2STransferACK;
@@ -129,6 +131,7 @@ public class MessageFactory {
 		register(Message.MessageType.S2C_LOGIN_SENDNONCE, MessageS2CLoginSendNonce.class);
 		register(Message.MessageType.C2S_LOGIN_SENDPROMISE, MessageC2SLoginSendPromise.class);
 		register(Message.MessageType.C2S_CREATEACCOUNT, MessageC2SCreateAccount.class);
+		register(Message.MessageType.C2S_CREATE_ACCOUNT_WITH_TOKEN, MessageC2SCreateAccountWithToken.class);
 		register(Message.MessageType.S2C_CREATEACCOUNT_ACK, MessageS2CCreateAccountACK.class);
 		register(Message.MessageType.S2C_CREATEACCOUNT_NACK, MessageS2CCreateAccountNACK.class);
 		register(Message.MessageType.C2S_CREATECHARACTER, MessageC2SCreateCharacter.class);
@@ -143,6 +146,7 @@ public class MessageFactory {
 		register(Message.MessageType.C2S_LOGIN_SENDUSERNAMEANDPASSWORD, MessageC2SLoginSendUsernameAndPassword.class);
 		register(Message.MessageType.S2C_UPDATE, MessageS2CUpdate.class);
 		register(Message.MessageType.C2S_UPDATE_RESPONSE, MessageC2SUpdateResponse.class);
+		register(Message.MessageType.C2S_LOGIN_WITH_TOKEN, MessageC2SLoginWithToken.class);
 	}
 
 	/**
